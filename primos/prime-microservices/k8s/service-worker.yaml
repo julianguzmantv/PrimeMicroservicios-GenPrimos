@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-worker-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/primes"
+  SPRING_DATASOURCE_USERNAME: "root"
+  SPRING_DATASOURCE_PASSWORD: "12345"
+  SPRING_RABBITMQ_HOST: "rabbitmq"
+  SPRING_RABBITMQ_PORT: "5672"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-worker
+spec:
+  replicas: 3  # Multiple workers for parallel processing
+  selector:
+    matchLabels:
+      app: service-worker
+  template:
+    metadata:
+      labels:
+        app: service-worker
+    spec:
+      containers:
+      - name: service-worker
+        image: service-worker:latest
+        imagePullPolicy: Never
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: service-worker-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: service-worker-config
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: service-worker-config
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: SPRING_RABBITMQ_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: service-worker-config
+              key: SPRING_RABBITMQ_HOST
+        - name: SPRING_RABBITMQ_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: service-worker-config
+              key: SPRING_RABBITMQ_PORT
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

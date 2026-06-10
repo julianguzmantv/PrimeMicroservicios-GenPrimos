@@ -1,0 +1,7 @@
+edu\unal\distribuidos\worker\listener\PrimeTaskListener.class
+edu\unal\distribuidos\worker\entity\Prime.class
+edu\unal\distribuidos\worker\WorkerApplication.class
+edu\unal\distribuidos\worker\repository\PrimeRepository.class
+edu\unal\distribuidos\worker\config\RabbitConfig.class
+edu\unal\distribuidos\worker\service\PrimeService.class
+edu\unal\distribuidos\worker\service\MillerRabin.class

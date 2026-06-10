@@ -1,0 +1,5 @@
+edu\unal\distribuidos\primes\config\RabbitConfig.class
+edu\unal\distribuidos\primes\PrimesApplication.class
+edu\unal\distribuidos\primes\repository\PrimeRequestRepository.class
+edu\unal\distribuidos\primes\controller\PrimeController.class
+edu\unal\distribuidos\primes\model\PrimeRequest.class

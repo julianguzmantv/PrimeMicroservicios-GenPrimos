@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+      MYSQL_DATABASE: "primes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      timeout: 20s
+      retries: 10
+
+  service-primes:
+    build:
+      context: .
+      dockerfile: service-primes/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/primes"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "12345"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  service-worker:
+    build:
+      context: .
+      dockerfile: service-worker/Dockerfile
+    deploy:
+      replicas: 3
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/primes"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "12345"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  service-stats:
+    build:
+      context: .
+      dockerfile: service-stats/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/primes"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "12345"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: "service-primes"
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: "http://service-primes:8081"
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: "Path=/primes/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: "service-stats"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: "http://service-stats:8083"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: "Path=/stats/**"
+    depends_on:
+      - service-primes
+      - service-stats
+
+volumes:
+  mysql-data:

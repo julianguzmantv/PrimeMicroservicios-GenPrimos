@@ -1,0 +1,4 @@
+edu\unal\distribuidos\stats\controller\StatsController.class
+edu\unal\distribuidos\stats\entity\Prime.class
+edu\unal\distribuidos\stats\repository\PrimeRepository.class
+edu\unal\distribuidos\stats\StatsApplication.class

@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-stats-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/primes"
+  SPRING_DATASOURCE_USERNAME: "root"
+  SPRING_DATASOURCE_PASSWORD: "12345"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-stats
+  template:
+    metadata:
+      labels:
+        app: service-stats
+    spec:
+      containers:
+      - name: service-stats
+        image: service-stats:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8083
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: service-stats-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: service-stats-config
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: service-stats-config
+              key: SPRING_DATASOURCE_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-stats
+spec:
+  selector:
+    app: service-stats
+  ports:
+  - port: 8083
+    targetPort: 8083
+  type: ClusterIP

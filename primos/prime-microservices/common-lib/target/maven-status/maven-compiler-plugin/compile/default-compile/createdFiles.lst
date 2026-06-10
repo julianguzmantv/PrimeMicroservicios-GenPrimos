@@ -1,0 +1,3 @@
+edu\unal\distribuidos\common\dto\PrimeRequestDto.class
+edu\unal\distribuidos\common\dto\PrimeResult.class
+edu\unal\distribuidos\common\dto\PrimeTask.class

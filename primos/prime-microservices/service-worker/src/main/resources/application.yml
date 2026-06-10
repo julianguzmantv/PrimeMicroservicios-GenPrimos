@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: service-worker
+  datasource:
+    url: jdbc:mysql://localhost:3306/primes?createDatabaseIfNotExist=true
+    username: root
+    password: 12345
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      '[hibernate.dialect]': org.hibernate.dialect.MySQLDialect
+    flyway:
+      enabled: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+app:
+  queue:
+    primeTasks: prime.tasks

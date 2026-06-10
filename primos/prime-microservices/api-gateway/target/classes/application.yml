@@ -1,0 +1,16 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: primes
+          uri: http://localhost:8081
+          predicates:
+            - Path=/primes/**
+        - id: stats
+          uri: http://localhost:8083
+          predicates:
+            - Path=/stats/**
